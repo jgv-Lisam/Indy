@@ -843,7 +843,7 @@ begin
           end;
           if LAddress <> nil then begin
             TIdStackLocalAddressAccess(LAddress).FInterfaceName := LAddrInfo^.ifa_name;
-            {$IF HAS_if_nametoindex}
+            {$IFDEF HAS_if_nametoindex}
             TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := if_nametoindex(LAddrInfo^.ifa_name);
             {$ENDIF}
           end;
@@ -1093,7 +1093,11 @@ end;
 
 function TIdStackLinux.WouldBlock(const AResult: Integer): Boolean;
 begin
-  Result := (AResult in [EAGAIN, EWOULDBLOCK, EINPROGRESS]);
+  // using if-else instead of in..range because EAGAIN and EWOULDBLOCK
+  // have often the same value and so FPC might report a range error
+  Result := (AResult = Id_WSAEAGAIN) or
+            (AResult = Id_WSAEWOULDBLOCK) or
+            (AResult = Id_WSAEINPROGRESS);
 end;
 
 function TIdStackLinux.SupportsIPv4: Boolean;

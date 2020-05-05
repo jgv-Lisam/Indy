@@ -1181,6 +1181,7 @@
     {$ENDIF}
   {$ENDIF}
   {$DEFINE HAS_SetCodePage}
+  {$DEFINE HAS_PRawByteString}
 {$ENDIF}
 
 {$IFDEF VCL_2010_OR_ABOVE}
@@ -1216,6 +1217,8 @@
 {$IFDEF VCL_XE2_OR_ABOVE}
   {$DEFINE HAS_SIZE_T}
   {$DEFINE HAS_PSIZE_T}
+  {$DEFINE HAS_SSIZE_T}
+  {$DEFINE HAS_PSSIZE_T}
   {$DEFINE HAS_LONG}
   {$DEFINE HAS_ComponentPlatformsAttribute}
   {$DEFINE HAS_ComponentPlatformsAttribute_Win32}
@@ -1376,10 +1379,15 @@
     {$DEFINE HAS_SharedSuffix}
   {$ENDIF}
   {$IFDEF FPC_2_2_4_OR_ABOVE}
-    // size_t and psize_t are only available on Unix systems (FreeBSD, Linux, etc)
+    // these types are only available on Unix systems (FreeBSD, Linux, etc)
     {$IFDEF UNIX}
+      {$DEFINE HAS_UNIT_UnixType}
       {$DEFINE HAS_SIZE_T}
       {$DEFINE HAS_PSIZE_T}
+      {$DEFINE HAS_SSIZE_T}
+      {$DEFINE HAS_PSSIZE_T}
+      {$DEFINE HAS_TIME_T}
+      {$DEFINE HAS_PTIME_T}
     {$ENDIF}
   {$ENDIF}
   {$DEFINE HAS_PtrInt}
@@ -1443,6 +1451,7 @@
   {$ENDIF}
   {$IFDEF FPC_3_1_1_OR_ABOVE}
     {$DEFINE HAS_STATIC_TThread_ForceQueue} // requires rev 37359+
+    {$DEFINE HAS_PRawByteString}
   {$ENDIF}
 {$ENDIF}
 
@@ -1723,8 +1732,12 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
       {$DEFINE THANDLE_32}
     {$ENDIF}
   {$ENDIF}
-  {$IFDEF OSX}  // !!! ADDED OSX BY EMBT
-    {$DEFINE THANDLE_CPUBITS}
+  {$IFDEF OSX}
+    {$IFDEF FPC}
+      {$DEFINE THANDLE_32}
+    {$ELSE}
+      {$DEFINE THANDLE_CPUBITS} // !!! ADDED OSX BY EMBT
+    {$ENDIF}
   {$ENDIF}
 {$ENDIF}
 {$IFDEF EMBEDDED}
