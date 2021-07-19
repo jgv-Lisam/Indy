@@ -22555,19 +22555,47 @@ them in case we use them later.}
 
 
 function LoadFunction(const FceName: TIdLibFuncName; const ACritical : Boolean = True): Pointer;
+{$IFDEF WINDOWS}
+var
+  Err: DWORD;
+{$ENDIF}
 begin
   Result := LoadLibFunction(hIdSSL, FceName);
-  if (Result = nil) and ACritical then begin
-    FFailedLoadList.Add(FceName);
+  if (Result <> nil) or (not ACritical) then begin
+    Exit;
   end;
+  {$IFDEF WINDOWS}
+  Err := GetLastError();
+  if Err <> ERROR_PROC_NOT_FOUND then begin
+    FFailedLoadList.Add(IndyFormat(RSOSSMissingExport_WithErrCode, [FceName, Err]));
+    Exit;
+  end;
+  {$ELSE}
+  // TODO: add error code to message...
+  {$ENDIF}
+  FFailedLoadList.Add(FceName);
 end;
 
 function LoadFunctionCLib(const FceName: TIdLibFuncName; const ACritical : Boolean = True): Pointer;
+{$IFDEF WINDOWS}
+var
+  Err: DWORD;
+{$ENDIF}
 begin
   Result := LoadLibFunction(hIdCrypto, FceName);
-  if (Result = nil) and ACritical then begin
-    FFailedLoadList.Add(FceName);
+  if (Result <> nil) or (not ACritical) then begin
+    Exit;
   end;
+  {$IFDEF WINDOWS}
+  Err := GetLastError();
+  if Err <> ERROR_PROC_NOT_FOUND then begin
+    FFailedLoadList.Add(IndyFormat(RSOSSMissingExport_WithErrCode, [FceName, Err]));
+    Exit;
+  end;
+  {$ELSE}
+  // TODO: add error code to message...
+  {$ENDIF}
+  FFailedLoadList.Add(FceName);
 end;
 
 // Id_ossl_old_des_set_odd_parity
@@ -22580,14 +22608,38 @@ The OpenSSL developers changed that interface to a new "des_*" API.  They have s
  which are defined in des_old.h. 
 }
 function LoadOldCLib(const AOldName, ANewName : TIdLibFuncName; const ACritical : Boolean = True): Pointer;
+{$IFDEF WINDOWS}
+var
+  Err: DWORD;
+{$ENDIF}
 begin
   Result := LoadLibFunction(hIdCrypto, AOldName);
-  if Result = nil then begin
-    Result := LoadLibFunction(hIdCrypto, ANewName);
-    if (Result = nil) and ACritical then begin
-      FFailedLoadList.Add(AOldName);
+  if Result <> nil then begin
+    Exit;
+  end;
+  {$IFDEF WINDOWS}
+  if ACritical then begin
+    Err := GetLastError();
+    if Err <> ERROR_PROC_NOT_FOUND then begin
+      FFailedLoadList.Add(IndyFormat(RSOSSMissingExport_WithErrCode, [AOldName, Err]));
+      Exit;
     end;
   end;
+  {$ENDIF}
+  Result := LoadLibFunction(hIdCrypto, ANewName);
+  if (Result <> nil) or (not ACritical) then begin
+    Exit;
+  end;
+  {$IFDEF WINDOWS}
+  Err := GetLastError();
+  if Err <> ERROR_PROC_NOT_FOUND then begin
+    FFailedLoadList.Add(IndyFormat(RSOSSMissingExport_WithErrCode, [ANewName, Err]));
+    Exit;
+  end;
+  {$ELSE}
+  // TODO: add error code to message...
+  {$ENDIF}
+  FFailedLoadList.Add(AOldName);
 end;
 
 {$ENDIF} // STATICLOAD_OPENSSL
@@ -22620,6 +22672,7 @@ begin
 end;
 
 {$IFNDEF STATICLOAD_OPENSSL}
+
 {$UNDEF USE_BASEUNIX_OR_VCL_POSIX}
 {$IFDEF USE_BASEUNIX}
   {$DEFINE USE_BASEUNIX_OR_VCL_POSIX}
@@ -22665,7 +22718,10 @@ end;
   {$ENDIF}
 
 function LoadSSLCryptoLibrary: TIdLibHandle;
-{$IFNDEF WINDOWS}
+{$IFDEF WINDOWS}
+var
+  Err: DWORD;
+{$ELSE}
   {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT} // TODO: use {$IF DEFINED(UNIX)} instead?
 var
   i, j: Integer;
@@ -22678,6 +22734,9 @@ begin
   //On Windows, you should use SafeLoadLibrary because
   //the LoadLibrary API call messes with the FPU control word.
   Result := SafeLoadLibrary(GIdOpenSSLPath + SSLCLIB_DLL_name);
+  if Result <> IdNilHandle then begin
+    Exit;
+  end;
   {$ELSE}
     {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT} // TODO: use {$IF DEFINED(UNIX)} instead?
   // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
@@ -22689,6 +22748,7 @@ begin
     if Result <> IdNilHandle then begin
       Exit;
     end;
+    // TODO: exit here if the error is anything other than the file not being found...
   end;
   for i := Low(SSLDLLVers) to High(SSLDLLVers) do begin
     for j := Low(SSLDLLVersChar) to High(SSLDLLVersChar) do begin
@@ -22698,18 +22758,33 @@ begin
     if Result <> IdNilHandle then begin
       Exit;
     end;
+    // TODO: exit here if the error is anything other than the file not being found...
   end;
   if LCanLoadSymLinks and (not LLoadSymLinksFirst) then begin
     Result := HackLoad(GIdOpenSSLPath + SSLCLIB_DLL_name, []);
+    if Result <> IdNilHandle then begin
+      Exit;
+    end;
+    // TODO: exit here if the error is anything other than the file not being found...
   end;
     {$ELSE}
   Result := IdNilHandle;
     {$ENDIF}
   {$ENDIF}
+  {$IFDEF WINDOWS}
+  Err := GetLastError;
+  FFailedLoadList.Add(IndyFormat(RSOSSFailedToLoad_WithErrCode, [GIdOpenSSLPath + SSLCLIB_DLL_name, Err]));
+  {$ELSE}
+  // TODO: add error code to message...
+  FFailedLoadList.Add(IndyFormat(RSOSSFailedToLoad, [GIdOpenSSLPath + SSLCLIB_DLL_name {$IFDEF UNIX}+ LIBEXT{$ENDIF}]));
+  {$ENDIF}
 end;
 
 function LoadSSLLibrary: TIdLibHandle;
-{$IFNDEF WINDOWS}
+{$IFDEF WINDOWS}
+var
+  Err: DWORD;
+{$ELSE}
   {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT} // TODO: use {$IF DEFINED(UNIX)} instead?
 var
   i, j: Integer;
@@ -22722,10 +22797,15 @@ begin
   //On Windows, you should use SafeLoadLibrary because
   //the LoadLibrary API call messes with the FPU control word.
   Result := SafeLoadLibrary(GIdOpenSSLPath + SSL_DLL_name);
+  if Result <> IdNilHandle then begin
+    Exit;
+  end;
+  // TODO: exit here if the error is anything other than the file not being found...
   //This is a workaround for mingw32-compiled SSL .DLL which
   //might be named 'libssl32.dll'.
-  if Result = IdNilHandle then begin
-    Result := SafeLoadLibrary(GIdOpenSSLPath + SSL_DLL_name_alt);
+  Result := SafeLoadLibrary(GIdOpenSSLPath + SSL_DLL_name_alt);
+  if Result <> IdNilHandle then begin
+    Exit;
   end;
   {$ELSE}
     {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT} // TODO: use {$IF DEFINED(UNIX)} instead?
@@ -22738,6 +22818,7 @@ begin
     if Result <> IdNilHandle then begin
       Exit;
     end;
+    // TODO: exit here if the error is anything other than the file not being found...
   end;
   for i := Low(SSLDLLVers) to High(SSLDLLVers) do begin
     for j := Low(SSLDLLVersChar) to High(SSLDLLVersChar) do begin
@@ -22747,13 +22828,25 @@ begin
     if Result <> IdNilHandle then begin
       Exit;
     end;
+    // TODO: exit here if the error is anything other than the file not being found...
   end;
   if LCanLoadSymLinks and (not LLoadSymLinksFirst) then begin
     Result := HackLoad(GIdOpenSSLPath + SSL_DLL_name, []);
+    if Result <> IdNilHandle then begin
+      Exit;
+    end;
+    // TODO: exit here if the error is anything other than the file not being found...
   end;
     {$ELSE}
   Result := IdNilHandle;
     {$ENDIF}
+  {$ENDIF}
+  {$IFDEF WINDOWS}
+  Err := GetLastError;
+  FFailedLoadList.Add(IndyFormat(RSOSSFailedToLoad_WithErrCode, [GIdOpenSSLPath + SSL_DLL_name, Err]));
+  {$ELSE}
+  // TODO: add error code to message...
+  FFailedLoadList.Add(IndyFormat(RSOSSFailedToLoad, [GIdOpenSSLPath + SSL_DLL_name {$IFDEF UNIX}+ LIBEXT{$ENDIF}]));
   {$ENDIF}
 end;
 
@@ -22797,15 +22890,21 @@ begin
 end;
 {$ENDIF}
 
-function Load: Boolean;
-begin
 {$IFDEF STATICLOAD_OPENSSL}
 
+function Load: Boolean;
+begin
   bIsLoaded := True;
   Result := True;
+end;
 
 {$ELSE}
 
+function Load: Boolean;
+var
+  LVersion, LMajor, LMinor: TIdC_ULONG;
+  LVersionStr: string;
+begin
   Result := False;
   Assert(FFailedLoadList<>nil);
 
@@ -22819,7 +22918,6 @@ begin
   if hIdCrypto = IdNilHandle then begin
     hIdCrypto := LoadSSLCryptoLibrary;
     if hIdCrypto = IdNilHandle then begin
-      FFailedLoadList.Add(IndyFormat(RSOSSFailedToLoad, [GIdOpenSSLPath + SSLCLIB_DLL_name {$IFDEF UNIX}+ LIBEXT{$ENDIF}]));
       Exit;
     end;
   end;
@@ -22827,9 +22925,56 @@ begin
   if hIdSSL = IdNilHandle then begin
     hIdSSL := LoadSSLLibrary;
     if hIdSSL = IdNilHandle then begin
-      FFailedLoadList.Add(IndyFormat(RSOSSFailedToLoad, [GIdOpenSSLPath + SSL_DLL_name {$IFDEF UNIX}+ LIBEXT{$ENDIF}]));
       Exit;
     end;
+  end;
+
+  // RLebeau 6/8/2021: verify the type of library is supported...
+
+  @_SSLeay_version := LoadOldCLib(fn_SSLeay_version, 'OpenSSL_version'); {Do not localize} //Used by Indy 
+  @SSLeay := LoadOldCLib(fn_SSLeay, 'OpenSSL_version_num'); {Do not localize} //Used by Indy 
+
+  if Assigned(_SSLeay_version) then begin
+    LVersionStr := String(_SSLeay_version(SSLEAY_VERSION));
+  end;
+
+  if TextStartsWith(LVersionStr, 'LibreSSL') then {do not localize}
+  begin
+    {
+    According to the LibreSSL Portable GitHub repo:
+    https://github.com/libressl-portable/portable
+
+    LibreSSL is API compatible with OpenSSL 1.0.1, but does not yet include all new APIs from OpenSSL 1.0.2 and later.
+    LibreSSL also includes APIs not yet present in OpenSSL. The current common API subset is OpenSSL 1.0.1.
+
+    LibreSSL is not ABI compatible with any release of OpenSSL, or necessarily earlier releases of LibreSSL.
+    You will need to relink your programs to LibreSSL in order to use it, just as in moving between major versions
+    of OpenSSL. LibreSSL's installed library version numbers are incremented to account for ABI and API changes.
+    }
+    // TODO: add version checking?
+  end
+  else if TextStartsWith(LVersionStr, 'OpenSSL') or (LVersionStr = '') then {do not localize}
+  begin
+    // RLebeau 2/2/2021: verify the version is OpenSSL 1.0.2 or earlier, as OpenSSL 1.1.0 made MAJOR changes that we do not support yet...
+    if Assigned(SSLeay) then
+    begin
+      LVersion := SSLeay;
+      LMajor := (LVersion and $F0000000) shr 28;
+      LMinor := (LVersion and $0FF00000) shr 20;
+      if (LMajor = 0) and (LMinor = 0) then begin // < 0.9.3
+        LMajor := (LVersion and $F000) shr 12;
+        LMinor := (LVersion and $0F00) shr 8;
+      end;
+      if (LMajor > 1) or ((LMajor = 1) and (LMinor > 0)) then // OpenSSL 1.1.0 or higher
+      begin
+        FFailedLoadList.Add(IndyFormat(RSOSSUnsupportedVersion, [LVersion]));
+        Exit;
+      end;
+    end;
+  end else 
+  begin
+    FFailedLoadList.Add(IndyFormat(RSOSSUnsupportedLibrary, [LVersionStr]));
+    Exit;
   end;
 
   // TODO: stop loading non-critical functions here.  We should use per-function
@@ -22926,8 +23071,6 @@ begin
   end;
   {$ENDIF}
    // CRYPTO LIB
-  @_SSLeay_version := LoadFunctionCLib(fn_SSLeay_version); //Used by Indy
-  @SSLeay := LoadFunctionCLib(fn_SSLeay);    //Used by Indy
   @d2i_X509_NAME := LoadFunctionCLib(fn_d2i_X509_NAME);
   @i2d_X509_NAME := LoadFunctionCLib(fn_i2d_X509_NAME);
   @X509_NAME_oneline := LoadFunctionCLib(fn_X509_NAME_oneline);//Used by Indy
@@ -23646,9 +23789,9 @@ we have to handle both cases.
   }
 
   Result := (FFailedLoadList.Count = 0);
-
-{$ENDIF}
 end;
+
+{$ENDIF} // STATICLOAD_OPENSSL
 
 procedure InitializeFuncPointers;
 begin

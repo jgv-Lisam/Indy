@@ -43,6 +43,7 @@
 // as specified further below.  This works in conjunction with the
 // FREE_ON_FINAL define above.
 {$UNDEF REGISTER_EXPECTED_MEMORY_LEAK}
+{$UNDEF HAS_System_RegisterExpectedMemoryLeak}
 
 // FastMM is natively available in BDS 2006 and higher.  $DEFINE the
 // following if FastMM has been installed manually in earlier versions
@@ -72,6 +73,9 @@
 // as specified further below.  Delphi/C++Builder Mobile/NextGen compilers
 // do not support Ansi data types anymore, and is moving away from raw
 // pointers as well.
+//
+// UPDATE: in Delphi/C++Builder 10.4, all Ansi types are supported again on
+// all platforms, including the mobile compilers.
 {$DEFINE HAS_AnsiString}
 {$DEFINE HAS_AnsiChar}
 {$DEFINE HAS_PAnsiChar}
@@ -81,6 +85,10 @@
 // Make sure the following are $DEFINE'd only for suitable environments
 // as specified further below.  Delphi/C++Builder Mobile/NextGen compilers
 // use ARC for TObject life time management.
+//
+// UPDATE: ARC for TObject lifetime management has been removed in
+// Delphi/C++Builder 10.4 mobile compilers.  All platforms now use a single
+// unified memory management model!
 {$UNDEF USE_MARSHALLED_PTRS}
 {$UNDEF HAS_MarshaledAString}
 {$UNDEF USE_OBJECT_ARC}
@@ -103,6 +111,7 @@
 // Make sure that this is defined only for environments where we are using
 // the iconv library to charactor conversions.
 {.$UNDEF USE_ICONV}
+{.$UNDEF USE_LCONVENC}
 
 //Define for Delphi cross-compiler targetting Posix
 {$UNDEF USE_VCL_POSIX}
@@ -130,6 +139,9 @@
 {$UNDEF HAS_ComponentPlatformsAttribute_Android64}
 {$UNDEF HAS_ComponentPlatformsAttribute_Android64Arm}
 {$UNDEF HAS_ComponentPlatformsAttribute_iOS_Simulator64}
+{$UNDEF HAS_ComponentPlatformsAttribute_AndroidArm32}
+{$UNDEF HAS_ComponentPlatformsAttribute_AndroidArm64}
+{$UNDEF HAS_ComponentPlatformsAttribute_OSXArm64}
 {$UNDEF HAS_ComponentPlatformsAttribute_AllPlatforms}
 {$UNDEF HAS_DIRECTIVE_WARN_DEFAULT}
 
@@ -408,13 +420,23 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder 10.4 (Denali)
+  //Delphi & CBuilder 10.4 Sydney (Denali)
   {$IFDEF VER340}
     {$DEFINE VCL_10_4}
     {$IFDEF CBUILDER}
       {$DEFINE CBUILDER_10_4}
     {$ELSE}
       {$DEFINE DELPHI_10_4}
+    {$ENDIF}
+  {$ENDIF}
+
+  //Delphi & CBuilder 11.0 (Olympus)
+  {$IFDEF VER350}
+    {$DEFINE VCL_11_0}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_11_0}
+    {$ELSE}
+      {$DEFINE DELPHI_11_0}
     {$ENDIF}
   {$ENDIF}
 
@@ -507,6 +529,7 @@
   {$IFDEF FPC_2_7_1_OR_ABOVE}
     {.$MODE DelphiUnicode}
     {.$MODESWITCH UnicodeStrings}
+    {.$CODEPAGE UTF8} // needed for Unicode string literals to work properly
   {$ENDIF}
   //note that we may need further defines for widget types depending on
   //what we do and what platforms we support in FPC.
@@ -716,8 +739,16 @@
 
 // end FPC
 
-{$IFDEF VCL_10_4}
+{$IFDEF VCL_11_0}
+  {$DEFINE VCL_11_0_OR_ABOVE}
+{$ENDIF}
+
+{$IFDEF VCL_11_0_OR_ABOVE}
   {$DEFINE VCL_10_4_OR_ABOVE}
+{$ELSE}
+  {$IFDEF VCL_10_4}
+    {$DEFINE VCL_10_4_OR_ABOVE}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF VCL_10_4_OR_ABOVE}
@@ -1011,11 +1042,12 @@
   // When generating a C++ HPP file, if a class has no explicit constructor
   // defined and contains compiler-managed members (xxxString, TDateTime,
   // Variant, DelphiInterface, etc), the HPP will contain a forwarding
-  // inline constructor that implicitally initializes those managed members,
+  // inline constructor that implicitly initializes those managed members,
   // which will overwrite any non-default initializations performed inside
   // of InitComponent() overrides! In this situation, the workaround is to
-  // define an explicit constructor that forwards to the base class constructor
-  // manually.
+  // define an explicit constructor that calls the base class constructor
+  // manually, allowing those managed members to be initialized by the
+  // compiler before InitComponent() overrides then re-assign them.
   {$DEFINE WORKAROUND_INLINE_CONSTRUCTORS}
 {$ENDIF}
 
@@ -1109,11 +1141,9 @@
 {$IFDEF VCL_2006_OR_ABOVE}
   {$DEFINE USE_INLINE}
   {$DEFINE HAS_2PARAM_FileAge}
-  {$DEFINE HAS_System_RegisterExpectedMemoryLeak}
-  {$IFNDEF FREE_ON_FINAL}
-    {$IFNDEF DOTNET}
-      {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
-    {$ENDIF}
+  {$IFDEF WINDOWS}
+    // System.RegisterExpectedMemoryLeak() is only available on Windows at this time
+    {$DEFINE HAS_System_RegisterExpectedMemoryLeak}
   {$ENDIF}
   // In C++Builder 2006 and 2007, UInt64 is emitted as signed __int64 in HPP
   // files instead of as unsigned __int64.  This causes conflicts in overloaded
@@ -1182,6 +1212,7 @@
   {$ENDIF}
   {$DEFINE HAS_SetCodePage}
   {$DEFINE HAS_PRawByteString}
+  {$DEFINE HAS_TThreadProcedure}
 {$ENDIF}
 
 {$IFDEF VCL_2010_OR_ABOVE}
@@ -1205,6 +1236,7 @@
   {$DEFINE HAS_PVOID}
   {$DEFINE HAS_ULONG64}
   {$DEFINE HAS_TEncoding_GetEncoding_ByEncodingName}
+  {$DEFINE HAS_DateUtils_TTimeZone}
   {$IFDEF DCC}
     // Exception.RaiseOuterException() is now available on all platforms
     {$DEFINE HAS_Exception_RaiseOuterException}
@@ -1328,6 +1360,20 @@
 
 {$IFDEF VCL_10_3_UPDATE2_OR_ABOVE}
   {$DEFINE HAS_ComponentPlatformsAttribute_OSX64}
+{$ENDIF}
+
+{$IFDEF VCL_10_4_OR_ABOVE}
+  // 0-based string indexing via '[]' is turned off by default in Delphi 10.4.
+  // TStringHelper is always 0-indexed, flat RTL functions are always 1-indexed,
+  // and now '[]' is 1-indexed again on all platforms - {$ZEROBASEDSTRINGS OFF}
+  // is the default.
+  {.$UNDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
+{$ENDIF}
+
+{$IFDEF VCL_11_0_OR_ABOVE}
+  {$DEFINE HAS_ComponentPlatformsAttribute_AndroidArm32}
+  {$DEFINE HAS_ComponentPlatformsAttribute_AndroidArm64}
+  {$DEFINE HAS_ComponentPlatformsAttribute_OSXArm64}
 {$ENDIF}
 
 // Delphi XE+ cross-compiling
@@ -1524,6 +1570,9 @@
 // TODO: Ansi data types were disabled on mobile platforms in XE3, but
 // UTF8String and RawByteString were re-enabled in 10.1 Berlin! What else,
 // if anything, was re-enabled to facilitate that?
+//
+// UPDATE: In 10.4 Sydney, AnsiChar and AnsiString were re-enabled on
+// mobile platforms!  NEXTGEN is no longer defined in the mobile compilers.
 {$IFDEF NO_ANSI_TYPES}
   {$UNDEF HAS_AnsiString}
   {$UNDEF HAS_AnsiChar}
@@ -1634,6 +1683,13 @@
 {$IFDEF WINDOWS}
   {$UNDEF USE_ICONV_ENC}
   {$DEFINE USE_SAFELOADLIBRARY}
+{$ENDIF}
+// Use here for all *nix systems that you do not want to use iconv library
+{$IFDEF FPC}
+  {$IFDEF ANDROID}
+    {$UNDEF USE_ICONV}
+    {$DEFINE USE_LCONVENC}
+  {$ENDIF}
 {$ENDIF}
 
 {$UNDEF USE_INVALIDATE_MOD_CACHE}
@@ -1833,7 +1889,10 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
 {$ENDIF}
 
 {$IFNDEF FREE_ON_FINAL}
-  {$IFNDEF REGISTER_EXPECTED_MEMORY_LEAK}
+  {$IFNDEF DOTNET}
+    {$IFDEF HAS_System_RegisterExpectedMemoryLeak}
+      {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
+    {$ENDIF}
     {$IFDEF USE_FASTMM4}
       {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
     {$ENDIF}
@@ -1842,21 +1901,6 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
     {$ENDIF}
     {$IFDEF USE_LEAKCHECK}
       {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
-    {$ENDIF}
-  {$ENDIF}
-{$ENDIF}
-
-{$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
-  {$IFDEF DOTNET}
-    {$UNDEF REGISTER_EXPECTED_MEMORY_LEAK}
-  {$ENDIF}
-  {$IFDEF VCL_CROSS_COMPILE}
-    // RLebeau: this should be enabled for Windows, at least...
-    {$IFNDEF MSWINDOWS}
-      // RLebeau: LeakCheck has leak reporting on other platforms...
-      {$IFNDEF USE_LEAKCHECK}
-        {$UNDEF REGISTER_EXPECTED_MEMORY_LEAK}
-      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
 {$ENDIF}
