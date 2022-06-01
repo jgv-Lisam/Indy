@@ -430,7 +430,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder 11.0 (Olympus)
+  //Delphi & CBuilder 11.0 Alexandria (Olympus)
   {$IFDEF VER350}
     {$DEFINE VCL_11_0}
     {$IFDEF CBUILDER}
@@ -1293,6 +1293,7 @@
 
 {$IFDEF VCL_XE5_UPDATE2_OR_ABOVE}
   {$DEFINE HAS_DIRECTIVE_HPPEMIT_LINKUNIT}
+  {$DEFINE HAS_DIRECTIVE_HPPEMIT_NAMESPACE}
 {$ENDIF}
 
 {$IFDEF VCL_XE7_OR_ABOVE}
@@ -1359,6 +1360,7 @@
 {$ENDIF}
 
 {$IFDEF VCL_10_3_UPDATE2_OR_ABOVE}
+  {$DEFINE HAS_ComponentPlatformsAttribute_AllPlatforms}
   {$DEFINE HAS_ComponentPlatformsAttribute_OSX64}
 {$ENDIF}
 
