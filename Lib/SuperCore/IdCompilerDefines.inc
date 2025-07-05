@@ -16,7 +16,8 @@
 {.$IFDEF IdIPv6} // use IPv6 by default
 
 {$DEFINE INDY100}
-{$DEFINE 10_6_2}  //so developers can IFDEF for this specific version
+{$DEFINE 10_6_3}    //so developers can IFDEF for this product version
+{$DEFINE 10_6_3_9}  //so developers can IFDEF for this specific version
 
 // When generating C++Builder output files, certain workarounds to compiler
 // problems need to be enabled! When invoking DCC on the command-line, use
@@ -220,7 +221,7 @@
   // identify Highlanger specifically.
 
   //Delphi & C++Builder 2006
-  //Delphi & C++Builder 2007 (Highlander)
+  //Delphi & C++Builder 2007 (initial release)
   {$IFDEF VER180}
     {$DEFINE DCC}
     {$DEFINE VCL_2006}
@@ -231,7 +232,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & C++Builder 2007 (Highlander)
+  //Delphi & C++Builder 2007 (final release)
   {$IFDEF VER185}
     {$DEFINE DCC}
     {$UNDEF VCL_2006}
@@ -256,7 +257,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & C++Builder 2009 (Tiburon)
+  //Delphi & C++Builder 2009
   {$IFDEF VER200}
     {$DEFINE DCC}
     {$DEFINE VCL_2009}
@@ -267,7 +268,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & C++Builder 2010 (Weaver)
+  //Delphi & C++Builder 2010
   {$IFDEF VER210}
     {$DEFINE DCC}
     {$DEFINE VCL_2010}
@@ -278,10 +279,8 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & C++Builder XE (Fulcrum)
+  //Delphi & C++Builder XE
   {$IFDEF VER220}
-  //REMOVE DCC DEFINE after the next Fulcrum beta.
-  //It will be defined there.
     {$IFNDEF DCC}
       {$DEFINE DCC}
     {$ENDIF}
@@ -295,7 +294,7 @@
 
   // DCC is now defined by the Delphi compiler starting in XE2
 
-  //Delphi & CBuilder XE2 (Pulsar)
+  //Delphi & CBuilder XE2
   {$IFDEF VER230}
     {$DEFINE VCL_XE2}
     {$IFDEF CBUILDER}
@@ -305,8 +304,8 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder XE3 (Waterdragon)
-  //Delphi & CBuilder XE3.5 (Quintessence - early betas only)
+  //Delphi & CBuilder XE3
+  //Delphi & CBuilder XE3.5 (early betas only)
   {$IFDEF VER240}
     {$DEFINE VCL_XE3}
     {$IFDEF CBUILDER}
@@ -316,7 +315,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder XE4 (Quintessence)
+  //Delphi & CBuilder XE4
   {$IFDEF VER250}
     {$UNDEF VCL_XE3}
     {$DEFINE VCL_XE4}
@@ -329,7 +328,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder XE5 (Zephyr)
+  //Delphi & CBuilder XE5
   {$IFDEF VER260}
     {$DEFINE VCL_XE5}
     {$IFDEF CBUILDER}
@@ -350,7 +349,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder XE6 (Proteus)
+  //Delphi & CBuilder XE6
   {$IFDEF VER270}
     {$DEFINE VCL_XE6}
     {$IFDEF CBUILDER}
@@ -360,7 +359,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder XE7 (Carpathia)
+  //Delphi & CBuilder XE7
   {$IFDEF VER280}
     {$DEFINE VCL_XE7}
     {$IFDEF CBUILDER}
@@ -370,7 +369,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder XE8 (Elbrus)
+  //Delphi & CBuilder XE8
   {$IFDEF VER290}
     {$DEFINE VCL_XE8}
     {$IFDEF CBUILDER}
@@ -380,7 +379,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder 10.0 Seattle (Aitana)
+  //Delphi & CBuilder 10.0 Seattle
   {$IFDEF VER300}
     {$DEFINE VCL_10_0}
     {$IFDEF CBUILDER}
@@ -390,7 +389,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder 10.1 Berlin (BigBen)
+  //Delphi & CBuilder 10.1 Berlin
   {$IFDEF VER310}
     {$DEFINE VCL_10_1}
     {$IFDEF CBUILDER}
@@ -400,7 +399,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder 10.2 Tokyo (Godzilla)
+  //Delphi & CBuilder 10.2 Tokyo
   {$IFDEF VER320}
     {$DEFINE VCL_10_2}
     {$IFDEF CBUILDER}
@@ -410,7 +409,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder 10.3 Rio (Carnival)
+  //Delphi & CBuilder 10.3 Rio
   {$IFDEF VER330}
     {$DEFINE VCL_10_3}
     {$IFDEF CBUILDER}
@@ -420,7 +419,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder 10.4 Sydney (Denali)
+  //Delphi & CBuilder 10.4 Sydney
   {$IFDEF VER340}
     {$DEFINE VCL_10_4}
     {$IFDEF CBUILDER}
@@ -430,14 +429,48 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder 11.0 Alexandria (Olympus)
+  //Delphi & CBuilder 11.0 Alexandria
   {$IFDEF VER350}
-    {$DEFINE VCL_11_0}
+    {$DEFINE VCL_11}
     {$IFDEF CBUILDER}
-      {$DEFINE CBUILDER_11_0}
+      {$DEFINE CBUILDER_11}
     {$ELSE}
-      {$DEFINE DELPHI_11_0}
+      {$DEFINE DELPHI_11}
     {$ENDIF}
+  {$ENDIF}
+
+  //Delphi & CBuilder 12.0 Athens
+  {$IFDEF VER360}
+    {$DEFINE VCL_12}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_12}
+    {$ELSE}
+      {$DEFINE DELPHI_12}
+    {$ENDIF}
+  {$ENDIF}
+
+  //Delphi & CBuilder 13.0 Florence
+  {$IFDEF VER370}
+    {$DEFINE VCL_13}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_13}
+    {$ELSE}
+      {$DEFINE DELPHI_13}
+    {$ENDIF}
+  {$ENDIF}
+
+  //Delphi & CBuilder 14.0+ (future releases)
+  {$IFDEF CONDITIONALEXPRESSIONS}
+    {$IF CompilerVersion >= 38}
+      {$MESSAGE WARN 'Unknown compiler version detected! Assuming >= 14.x '}
+      {$DEFINE VCL_UNKNOWN_VERSION}
+      {$DEFINE VCL_14}
+      {$IFDEF CBUILDER}
+        {$DEFINE CBUILDER_14}
+      {$ELSE}
+        {$DEFINE DELPHI_14}
+      {$ENDIF}
+    {$IFEND}
   {$ENDIF}
 
   // Kylix
@@ -526,11 +559,6 @@
   // {$MODE DelphiUnicode} anyway, and then deal with any RTL function issues
   // on an as-needed basis...
   {$MODE Delphi}
-  {$IFDEF FPC_2_7_1_OR_ABOVE}
-    {.$MODE DelphiUnicode}
-    {.$MODESWITCH UnicodeStrings}
-    {.$CODEPAGE UTF8} // needed for Unicode string literals to work properly
-  {$ENDIF}
   //note that we may need further defines for widget types depending on
   //what we do and what platforms we support in FPC.
   //I'll let Marco think about that one.
@@ -556,6 +584,9 @@
   // evaluates $IF statements before $IFDEF statements...
 
   {$MACRO ON} // must be on in order to use versioning macros
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 30301)}
+    {$DEFINE FPC_3_3_1_OR_ABOVE}
+  {$IFEND}
   {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 30101)}
     {$DEFINE FPC_3_1_1_OR_ABOVE}
   {$IFEND}
@@ -729,6 +760,9 @@
 
   {.$IFDEF FPC_2_7_1_OR_ABOVE}
     // support for RawByteString and UnicodeString
+    {.$MODE DelphiUnicode}
+    {.$MODESWITCH UnicodeStrings}
+    {.$CODEPAGE UTF8} // needed for Unicode string literals to work properly
     {.$DEFINE VCL_2009}
     {.$DEFINE DELPHI_2009}
   {.$ELSE}
@@ -739,15 +773,42 @@
 
 // end FPC
 
-{$IFDEF VCL_11_0}
-  {$DEFINE VCL_11_0_OR_ABOVE}
+{$IFDEF VCL_14}
+  {$DEFINE VCL_14_OR_ABOVE}
 {$ENDIF}
 
-{$IFDEF VCL_11_0_OR_ABOVE}
+{$IFDEF VCL_14_OR_ABOVE}
+  {$DEFINE VCL_13_OR_ABOVE}
+{$ELSE}
+  {$IFDEF VCL_13}
+    {$DEFINE VCL_13_OR_ABOVE}
+  {$ENDIF}
+{$ENDIF}
+
+{$IFDEF VCL_13_OR_ABOVE}
+  {$DEFINE VCL_12_OR_ABOVE}
+{$ELSE}
+  {$IFDEF VCL_12}
+    {$DEFINE VCL_12_OR_ABOVE}
+  {$ENDIF}
+{$ENDIF}
+
+{$IFDEF VCL_12_OR_ABOVE}
+  {$DEFINE VCL_11_OR_ABOVE}
+{$ELSE}
+  {$IFDEF VCL_11}
+    {$DEFINE VCL_11_OR_ABOVE}
+  {$ENDIF}
+{$ENDIF}
+
+{$IFDEF VCL_11_OR_ABOVE}
   {$DEFINE VCL_10_4_OR_ABOVE}
+  {$DEFINE VCL_10_4_UPDATE2_OR_ABOVE}
 {$ELSE}
   {$IFDEF VCL_10_4}
     {$DEFINE VCL_10_4_OR_ABOVE}
+    // TODO: figure out how to detect this version
+    {.$DEFINE VCL_10_4_UPDATE2_OR_ABOVE}
   {$ENDIF}
 {$ENDIF}
 
@@ -1059,6 +1120,7 @@
   {$ENDIF}
   {$DEFINE HAS_GetObjectProp}
   {$DEFINE HAS_TObjectList}
+  {$DEFINE HAS_StrToInt64Def}
 {$ENDIF}
 
 {$IFDEF VCL_6_OR_ABOVE}
@@ -1141,6 +1203,7 @@
 {$IFDEF VCL_2006_OR_ABOVE}
   {$DEFINE USE_INLINE}
   {$DEFINE HAS_2PARAM_FileAge}
+  {$DEFINE HAS_TStrings_LineBreak} // TODO: when was LineBreak introduced?
   {$IFDEF WINDOWS}
     // System.RegisterExpectedMemoryLeak() is only available on Windows at this time
     {$DEFINE HAS_System_RegisterExpectedMemoryLeak}
@@ -1161,7 +1224,6 @@
   // Native(U)Int exist but are buggy, so do not use them yet
   {.$DEFINE HAS_NativeInt}
   {.$DEFINE HAS_NativeUInt}
-  {$DEFINE HAS_StrToInt64Def}
   {$DEFINE HAS_DWORD_PTR}
   {$DEFINE HAS_ULONG_PTR}
   {$DEFINE HAS_ULONGLONG}
@@ -1200,6 +1262,7 @@
   {$DEFINE HAS_UInt16}
   {$DEFINE HAS_Int32}
   {$DEFINE HAS_UInt32}
+  {$DEFINE HAS_UIntToStr}
   // UInt64 is now emitted as unsigned __int64 in HPP files
   {$IFDEF CBUILDER}
     {$UNDEF BROKEN_UINT64_HPPEMIT}
@@ -1372,7 +1435,7 @@
   {.$UNDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
 {$ENDIF}
 
-{$IFDEF VCL_11_0_OR_ABOVE}
+{$IFDEF VCL_11_OR_ABOVE}
   {$DEFINE HAS_ComponentPlatformsAttribute_AndroidArm32}
   {$DEFINE HAS_ComponentPlatformsAttribute_AndroidArm64}
   {$DEFINE HAS_ComponentPlatformsAttribute_OSXArm64}
@@ -1451,6 +1514,7 @@
   {$ENDIF}
   {$DEFINE HAS_UNIT_ctypes}
   {$DEFINE HAS_sLineBreak}
+  {$DEFINE HAS_TStrings_LineBreak} // TODO: when was LineBreak introduced?
   {$IFDEF FPC_HAS_UNICODESTRING}
     {$DEFINE HAS_UnicodeString}
   {$ELSE}
@@ -1500,6 +1564,7 @@
   {$IFDEF FPC_3_1_1_OR_ABOVE}
     {$DEFINE HAS_STATIC_TThread_ForceQueue} // requires rev 37359+
     {$DEFINE HAS_PRawByteString}
+    {$DEFINE HAS_UIntToStr} // requires rev 40529+
   {$ENDIF}
 {$ENDIF}
 
@@ -1594,7 +1659,7 @@
 {$IFDEF WIN32_OR_WIN64}
   {$DEFINE USE_ZLIB_UNIT}
   {$IFNDEF DCC_NEXTGEN}
-    {$DEFINE USE_OPENSSL} // !!!·MOVED·HERE·BY·EMBT
+    {$DEFINE USE_OPENSSL} // !!! MOVED HERE BY EMBT
     {$DEFINE USE_SSPI}
     {$IFDEF STRING_IS_UNICODE}
       {$DEFINE SSPI_UNICODE}
@@ -1622,9 +1687,14 @@
 {$IFDEF UNIX}
   {$DEFINE USE_OPENSSL}
   {$DEFINE USE_ZLIB_UNIT}
+  {$DEFINE HAS_getifaddrs}
 {$ENDIF}
 
 {$IFDEF MACOS}
+  {$DEFINE HAS_getifaddrs}
+{$ENDIF}
+
+{$IFDEF DARWIN}
   {$DEFINE HAS_getifaddrs}
 {$ENDIF}
 
@@ -1635,19 +1705,28 @@
 {$IFDEF IOS}
   {$DEFINE HAS_getifaddrs}
   {$DEFINE USE_OPENSSL}
+
+  // Support for 64-bit ARM iOS Simulator was added in Delphi 11.2
+  // TODO: how to detect iOS Simulator in FPC? Does it support 64-bit ARM?
   {$IFDEF CPUARM}
-    // RLebeau: For iOS devices, OpenSSL cannot be used as an external library,
-    // it must be statically linked into the app.  For the iOS simulator, this
-    // is not true.  Users who want to use OpenSSL in iOS device apps will need
-    // to add the static OpenSSL library to the project and then include the
-    // IdSSLOpenSSLHeaders_static unit in their uses clause. It hooks up the
-    // statically linked functions for the IdSSLOpenSSLHeaders unit to use...
-    {$DEFINE STATICLOAD_OPENSSL}
+    {$IFNDEF IOSSIMULATOR}
+      // RLebeau: For iOS devices, OpenSSL cannot be used as an external library,
+      // it must be statically linked into the app.  For the iOS simulator, this
+      // is not true.  Users who want to use OpenSSL in iOS device apps will need
+      // to add the static OpenSSL library to the project and then include the
+      // IdSSLOpenSSLHeaders_static unit in their uses clause. It hooks up the
+      // statically linked functions for the IdSSLOpenSSLHeaders unit to use...
+      {$DEFINE STATICLOAD_OPENSSL}
+    {$ENDIF}
   {$ENDIF}
 {$ENDIF}
 
 {$IFDEF FREEBSD}
   {$DEFINE HAS_getifaddrs}
+{$ENDIF}
+
+{$IFDEF ANDROID}
+  {$UNDEF HAS_getifaddrs}
 {$ENDIF}
 
 {$IFDEF FPC_REQUIRES_PROPER_ALIGNMENT}
